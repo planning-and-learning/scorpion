@@ -1,3 +1,5 @@
+import json
+
 from fast_downward.translate import invariant_finder
 from fast_downward.translate import pddl
 from fast_downward.translate import timers
@@ -110,6 +112,38 @@ def collect_all_mutex_groups(groups, atoms):
 def sort_groups(groups):
     return sorted(sorted(group) for group in groups)
 
+def atom_text(atom):
+    return "%s(%s)" % (atom.predicate, ",".join(atom.args))
+
+def compute_groups_from_file(path, atoms, negative_in_goal):
+    """The ground variables and mutex groups of a --mutex-groups file."""
+    with open(path) as stream:
+        given = json.load(stream)
+    by_text = {atom_text(atom): atom for atom in atoms}
+
+    def resolve(group):
+        # Atoms this translator found unreachable are not part of the task.
+        return sorted({by_text[text] for text in group if text in by_text})
+
+    covered = set()
+    groups = []
+    for group in given["variables"]:
+        resolved = resolve(group)
+        if covered.intersection(resolved):
+            raise SystemExit("--mutex-groups: variables overlap in %s" % sorted(map(str, covered.intersection(resolved))))
+        covered.update(resolved)
+        # As in choose_groups, atoms negated in the goal get binary variables.
+        kept = [atom for atom in resolved if atom not in negative_in_goal]
+        if kept:
+            groups.append(kept)
+        groups += [[atom] for atom in resolved if atom in negative_in_goal]
+    groups += [[atom] for atom in atoms if atom not in covered]
+    groups = sort_groups(groups)
+
+    mutexes = [group for group in map(resolve, given["mutexes"]) if len(group) > 1]
+    mutex_groups = collect_all_mutex_groups(sort_groups(mutexes), atoms)
+    return groups, mutex_groups, build_translation_key(groups)
+
 def compute_groups(task: pddl.Task, atoms: Set[pddl.Literal],
     reachable_action_params: Dict[pddl.Action, List[str]],
     negative_in_goal: Set[pddl.Atom]) -> Tuple[
@@ -120,6 +154,9 @@ def compute_groups(task: pddl.Task, atoms: Set[pddl.Literal],
         List[List[str]], # translation_key
         # -> string representations of group atoms (plus one for "other value")
         ]:
+    if get_options().mutex_groups is not None:
+        return compute_groups_from_file(get_options().mutex_groups, atoms, negative_in_goal)
+
     groups = invariant_finder.get_groups(task, reachable_action_params)
 
     with timers.timing("Instantiating groups"):

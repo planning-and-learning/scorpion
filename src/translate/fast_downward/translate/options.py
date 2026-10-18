@@ -52,6 +52,14 @@ def get_arg_parser():
         "needed for grounded input files that would otherwise produce "
         "too many candidates.")
     argparser.add_argument(
+        "--mutex-groups", default=None,
+        help="JSON file {\"variables\": [...], \"mutexes\": [...]} of the "
+        "task's ground atom groups, each a list of atoms written "
+        "\"pred(arg1,arg2)\", replacing invariant synthesis and the choice of "
+        "groups: \"variables\" become the variables (atoms negated in the goal "
+        "become binary; reachable atoms in no group too) and \"mutexes\" the "
+        "mutex groups.")
+    argparser.add_argument(
         "--sas-file", default="output.sas",
         help="path to the SAS output file (default: %(default)s)")
     argparser.add_argument(
