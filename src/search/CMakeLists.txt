@@ -509,6 +509,15 @@ create_fast_downward_library(
 )
 
 create_fast_downward_library(
+    NAME plan_evaluation
+    HELP "Evaluate a heuristic along a plan"
+    SOURCES
+        search_algorithms/plan_evaluation
+    DEPENDS
+        search_common
+)
+
+create_fast_downward_library(
     NAME breadth_first_search
     HELP "Breadth-first search"
     SOURCES
