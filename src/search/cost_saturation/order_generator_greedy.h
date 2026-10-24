@@ -11,6 +11,7 @@ class OrderGeneratorGreedy : public OrderGenerator {
     // Goal distances under the original cost function by abstraction.
     std::vector<std::vector<int>> h_values_by_abstraction;
     std::vector<int> stolen_costs_by_abstraction;
+    bool logged_scores = false;
 
     double rate_abstraction(
         const std::vector<int> &abstract_state_ids, int abs_id) const;

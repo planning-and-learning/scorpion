@@ -84,6 +84,19 @@ Order OrderGeneratorGreedy::compute_order_for_state(
         return scores[abs1] > scores[abs2];
     });
 
+    // The first order (the initial state's): each abstraction's goal distance under the full costs and the costs it
+    // steals from the others, from which its score follows.
+    if (!logged_scores) {
+        logged_scores = true;
+        utils::g_log << "Greedy scores:";
+        for (int abs = 0; abs < num_abstractions; ++abs) {
+            utils::g_log << " " << abs << ":"
+                         << h_values_by_abstraction[abs][abstract_state_ids[abs]] << "/"
+                         << stolen_costs_by_abstraction[abs];
+        }
+        utils::g_log << endl;
+    }
+
     if (verbose) {
         unordered_set<double> unique_scores(scores.begin(), scores.end());
         cout << "Static greedy unique scores: " << unique_scores.size() << endl;
