@@ -118,6 +118,12 @@ void EagerSearch::initialize() {
 
 void EagerSearch::print_statistics() const {
     statistics.print_detailed_statistics();
+    if (expanded_h_count > 0) {
+        log << "Expanded-state h: mean "
+            << static_cast<double>(expanded_h_sum) / expanded_h_count
+            << " over " << expanded_h_count << " states, " << expanded_h_zero
+            << " with h = 0" << endl;
+    }
     search_space.print_statistics();
     pruning_method->print_statistics();
 }
@@ -345,6 +351,11 @@ void EagerSearch::update_f_value_statistics(EvaluationContext &eval_context) {
     if (f_evaluator) {
         int f_value = eval_context.get_evaluator_value(f_evaluator.get());
         statistics.report_f_value_progress(f_value);
+        int h_value = f_value - eval_context.get_g_value();
+        expanded_h_sum += h_value;
+        ++expanded_h_count;
+        if (h_value == 0)
+            ++expanded_h_zero;
     }
 }
 

@@ -23,6 +23,10 @@ class EagerSearch : public SearchAlgorithm {
 
     std::unique_ptr<StateOpenList> open_list;
     std::shared_ptr<Evaluator> f_evaluator;
+    // h = f - g of every expanded state, for print_statistics().
+    long long expanded_h_sum = 0;
+    long long expanded_h_count = 0;
+    long long expanded_h_zero = 0;
 
     std::vector<Evaluator *> path_dependent_evaluators;
     std::vector<std::shared_ptr<Evaluator>> preferred_operator_evaluators;
