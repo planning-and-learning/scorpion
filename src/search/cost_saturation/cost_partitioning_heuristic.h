@@ -3,6 +3,7 @@
 
 #include "types.h"
 
+#include <utility>
 #include <vector>
 
 namespace cost_saturation {
@@ -50,6 +51,10 @@ public:
       sum of all goal distances of the abstract states corresponding to s.
     */
     int compute_heuristic(const std::vector<int> &abstract_state_ids) const;
+
+    // The positive goal distances that compute_heuristic() sums, as (abstraction id, distance).
+    std::vector<std::pair<int, int>> compute_heuristic_parts(
+        const std::vector<int> &abstract_state_ids) const;
 
     // Return the number of useful abstractions.
     int get_num_lookup_tables() const;

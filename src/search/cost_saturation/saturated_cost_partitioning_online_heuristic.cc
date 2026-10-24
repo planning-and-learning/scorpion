@@ -132,6 +132,19 @@ int SaturatedCostPartitioningOnlineHeuristic::compute_heuristic(
                     abstractions, order, remaining_costs, abstract_state_ids));
             }
             size_kb += cost_partitioning.estimate_size_in_kb();
+            // Which projections carry this SCP's value for the state it was computed for, and in which order.
+            utils::g_log << "Stored SCP " << cp_heuristics.size() + 1 << " at evaluated state "
+                         << num_evaluated_states << ": h=" << new_h << ", order=[";
+            for (size_t i = 0; i < order.size() && i < 100; ++i)
+                utils::g_log << (i ? " " : "") << order[i];
+            utils::g_log << (order.size() > 100 ? " ..." : "") << "], parts=[";
+            bool first = true;
+            for (const auto &[abstraction_id, h] :
+                 cost_partitioning.compute_heuristic_parts(abstract_state_ids)) {
+                utils::g_log << (first ? "" : " ") << abstraction_id << ":" << (h == INF ? -1 : h);
+                first = false;
+            }
+            utils::g_log << "]" << endl;
             cp_heuristics.push_back(move(cost_partitioning));
             stored_scp = true;
         }

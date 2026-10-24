@@ -70,6 +70,17 @@ int CostPartitioningHeuristic::compute_heuristic(
         });
 }
 
+vector<pair<int, int>> CostPartitioningHeuristic::compute_heuristic_parts(
+    const vector<int> &abstract_state_ids) const {
+    vector<pair<int, int>> parts;
+    for (const LookupTable &lookup_table : lookup_tables) {
+        int h = lookup_table.h_values[abstract_state_ids[lookup_table.abstraction_id]];
+        if (h != 0)
+            parts.emplace_back(lookup_table.abstraction_id, h);
+    }
+    return parts;
+}
+
 int CostPartitioningHeuristic::get_num_lookup_tables() const {
     return lookup_tables.size();
 }
