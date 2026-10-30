@@ -509,6 +509,16 @@ create_fast_downward_library(
 )
 
 create_fast_downward_library(
+    NAME scp_inspection
+    HELP "Write the quantities of a saturated cost partitioning to JSON"
+    SOURCES
+        search_algorithms/scp_inspection
+    DEPENDS
+        cost_partitioning
+        search_common
+)
+
+create_fast_downward_library(
     NAME plan_evaluation
     HELP "Evaluate a heuristic along a plan"
     SOURCES
