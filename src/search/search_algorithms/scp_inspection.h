@@ -25,6 +25,9 @@ namespace scp_inspection {
   costs s_i, the least costs preserving h_i; then r_{i+1} = r_i - s_i. The
   heuristic value of a state s is the sum of h_i(a_i(s)).
 
+  With a costs file, c is read from it instead of the task: one cost per
+  operator id and line, an integer or "inf".
+
   The inspected states are the initial state and, with a plan file, every state
   along the plan. The cost partitioning is computed for the state at
   `target_step` and evaluated on all of them, as the online heuristic does.
@@ -43,6 +46,7 @@ class ScpInspection : public SearchAlgorithm {
     const std::shared_ptr<cost_saturation::OrderGenerator> order_generator;
     const std::vector<int> order;
     const std::string plan_file;
+    const std::string costs_file;
     const int target_step;
     const std::string output_file;
 
@@ -58,7 +62,7 @@ public:
         cost_saturation::Saturator saturator,
         const std::shared_ptr<cost_saturation::OrderGenerator> &order_generator,
         const std::vector<int> &order, const std::string &plan_file,
-        int target_step, const std::string &output_file,
+        const std::string &costs_file, int target_step, const std::string &output_file,
         const std::string &description, utils::Verbosity verbosity);
 
     virtual void save_plan_if_necessary() override;

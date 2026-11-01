@@ -89,8 +89,8 @@ ScpInspection::ScpInspection(
         &abstraction_generators,
     cost_saturation::Saturator saturator,
     const shared_ptr<cost_saturation::OrderGenerator> &order_generator,
-    const vector<int> &order, const string &plan_file, int target_step,
-    const string &output_file, const string &description,
+    const vector<int> &order, const string &plan_file,
+    const string &costs_file, int target_step, const string &output_file, const string &description,
     utils::Verbosity verbosity)
     // Bound 0: SearchAlgorithm::search() calls initialize() and never step().
     : SearchAlgorithm(
@@ -101,6 +101,7 @@ ScpInspection::ScpInspection(
       order_generator(order_generator),
       order(order),
       plan_file(plan_file),
+      costs_file(costs_file),
       target_step(target_step),
       output_file(output_file) {
 }
@@ -108,6 +109,28 @@ ScpInspection::ScpInspection(
 void ScpInspection::initialize() {
     OperatorsProxy operators = task_proxy.get_operators();
     vector<int> costs = task_properties::get_operator_costs(task_proxy);
+    if (!costs_file.empty()) {
+        ifstream input(costs_file);
+        if (!input)
+            exit_with_input_error("Cannot read costs file " + costs_file);
+        vector<int> read;
+        string token;
+        while (input >> token) {
+            try {
+                read.push_back(token == "inf" ? INF : stoi(token));
+            } catch (const exception &) {
+                exit_with_input_error("Not a cost: " + token);
+            }
+            if (read.back() < 0)
+                exit_with_input_error("Negative cost: " + token);
+        }
+        if (read.size() != costs.size())
+            exit_with_input_error(
+                "The costs file has " + to_string(read.size()) +
+                " costs; the task has " + to_string(costs.size()) +
+                " operators");
+        costs = read;
+    }
 
     // The inspected states: the initial state and every state along the plan.
     vector<int> plan;
@@ -358,6 +381,11 @@ public:
         add_option<string>(
             "plan_file", "plan in Fast Downward's sas_plan format; empty for "
             "the initial state only", "\"\"");
+        add_option<string>(
+            "costs_file",
+            "operator costs, one integer or inf per operator id and line; "
+            "empty for the task's costs",
+            "\"\"");
         add_option<int>(
             "target_step",
             "the plan state for which the cost partitioning is computed",
@@ -381,7 +409,7 @@ public:
             options.get<shared_ptr<
                 cost_saturation::TaskIndependentOrderGenerator>>("orders"),
             options.get_list<int>("order"), options.get<string>("plan_file"),
-            options.get<int>("target_step"),
+            options.get<string>("costs_file"), options.get<int>("target_step"),
             options.get<string>("output_file"),
             options.get<string>("description"),
             utils::get_log_arguments_from_options(options));
