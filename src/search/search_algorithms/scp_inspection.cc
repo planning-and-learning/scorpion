@@ -254,6 +254,8 @@ void ScpInspection::initialize() {
         write_ints(out, ids);
         out << ",\"h_original_costs\":";
         write_ints(out, distances);
+        out << ",\"saturated_costs\":";
+        write_sparse_costs(out, saturated_full[abs]);
         out << ",\"h_original_costs_histogram\":{";
         bool first = true;
         for (const auto &[h, count] : histogram) {

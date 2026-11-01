@@ -33,7 +33,7 @@ namespace scp_inspection {
   `target_step` and evaluated on all of them, as the online heuristic does.
   Per abstraction the file holds its size, the abstract state and the goal
   distance under the original costs of every inspected state, and the
-  greedy order's stolen costs; per position of the order the goal distances
+  greedy order's stolen costs, and its saturated costs under c on its own; per position of the order the goal distances
   under the remaining costs and the saturated cost of every operator whose
   saturated cost is not zero; then the costs left over and the sum.
   Like a search with bound 0, the planner exits with
